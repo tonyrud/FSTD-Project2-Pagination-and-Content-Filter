@@ -4,6 +4,14 @@ body{
   color: #222;
 }
 
+.no-result{
+  font-size: 28px;
+  /*text-transform: uppercase;*/
+  font-weight: bold;
+  color: #222;
+}
+
+
 .page{
   margin: 50px auto;
   width: 70%;
@@ -104,16 +112,18 @@ body{
     display: inline;
   }
 
-    .pagination li a{
+    .pagination li button{
+      cursor: pointer;
       border: 1px solid #eaeaea;
       border-radius: 5px;
       padding: 3px 8px;
       text-decoration: none;
       color: #4ba6c3;
+      transition: all .4s ease;
     }
 
-    .pagination li a.active,
-    .pagination li a:hover{
+    .pagination li button.active,
+    .pagination li button:hover{
       background-color: #4ba6c3;
       color: #fff;
     }
