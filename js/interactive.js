@@ -5,9 +5,10 @@ let $students = $('.student-item'),
     perPage = 10,
     totalPages = (Math.ceil($students.length / perPage)),
     animTime = 450,
-    searchArray = [];
+    searchArray = [],
+    $searchResults;
 
-var noStudentsMessage = $('<h3 class="no-result">No results for your search.</h3>').insertAfter($('.student-list'));
+var noStudentsMessage = $('<h3 class="no-result">No results for your search.</h3>');
 
 //search input
 const searchHTML = `
@@ -30,23 +31,22 @@ $('.page-header').append(searchHTML);
 
 
 //create array of searchable objects to filter
-$students.each(function () {
-    searchArray.push({
-        student: this,
-        name: $(this).find('h3').html().toLowerCase()
-    });
-})
+function buildSearchArray() {
+    $students.each(function () {
+        searchArray.push({
+            student: this,
+            name: $(this).find('h3').html().toLowerCase()
+        });
+    })
+}
+
 
 /*=========================
  FUNCTIONS
  ========================== */
 
 function hideStudents(el, start, end) {
-    noStudentsMessage.fadeOut(animTime);
-    if ($('.student-item:visible').length === 0) {
-        noStudentsMessage.fadeIn(animTime);
-    }
-    el.hide().slice(start, end).fadeIn(animTime);
+    $(el).hide().slice(start, end).fadeIn(animTime);
 }
 
 let createPageButtons = (total) => {
@@ -63,14 +63,10 @@ let createPageButtons = (total) => {
     buttonsHTML.find('button').eq(0).addClass('active');
 };
 
-let showMsg = () => {
-
-}
-
-
 //init functions
 hideStudents($students, 0, perPage);
 createPageButtons(totalPages);
+buildSearchArray();
 
 
 /*=========================
@@ -91,33 +87,48 @@ $('.pagination').on('click', 'button', function (e) {
         end = 10;
     }
 
-    hideStudents($students, start, end);
+    if ($('input').val()){
+        console.log($searchResults.length)
+        hideStudents($searchResults, start, end);
+    } else {
+        hideStudents($students, start, end);
+    }
 });
 
 
 $('.student-search').on('click', 'button',function () {
 
+    //hide message
+    noStudentsMessage.fadeOut(animTime);
+
     //store the search input
     let searchVal = $('input').val().trim().toLowerCase();
     
     //run function on every element in students array
-    searchArray.forEach(function (i) {
+    searchArray.forEach(function (el, i, arr) {
         let index = 0,
-            current = i.student;
+            current = el.student;
         if(searchVal){
             //check if text is in current object, -1 = not found
-            index = i.name.indexOf(searchVal)
+            index = el.name.indexOf(searchVal)
         }
 
         // if indexOf returns -1, hide this element
         index === -1 ? $(current).hide() : $(current).fadeIn(animTime);
     });
 
+    //set the visible students as array
+    $searchResults = $('.student-item:visible').toArray();
 
+    if ($searchResults.length === 0) {
+        noStudentsMessage.insertAfter($('.student-list')).fadeIn(animTime);
+    }
 
-    let pages = Math.ceil($('.student-item:visible').length / perPage);
-    console.log($('.student-item:visible').length, pages,$('.student-item:visible') )
-    hideStudents($('.student-item:visible'), 0, perPage);
+    //create pagination buttons amount
+    let pages = Math.ceil($searchResults.length / perPage);
+    //hide students based on searched results
+    hideStudents($searchResults, 0, perPage);
+    //create buttons from pages needed
     createPageButtons(pages);
 });
 
